@@ -71,6 +71,21 @@ func Swapped(sent, served string) bool {
 	return a != "" && b != "" && squash(a) != squash(b) && a != "auto" && squash(bareModel(provider.EffortFamily(a))) != squash(b) && !GroupRouted(sent, served) && !ServingName(sent, served) && !RelayRenamed(sent, served) && !VendorAlias(sent, served) && !RegionTail(sent, served)
 }
 
+// SwappedOnWire reports whether served is another model than the one a
+// call asked for, judged by both the name that went out and magpie's own
+// name for the model. A model listed by an id of the user's own can go
+// out under a provider's deployment id — a Volcengine Ark custom endpoint
+// (ep-…): its reply names the model's dated version, which can never equal
+// the deployment id, though both name the model magpie lists. When the two
+// ids are the same there is nothing to judge twice. servedInstead prices a
+// row by this rule.
+func SwappedOnWire(sent, model, served string) bool {
+	if sent == model {
+		return Swapped(sent, served)
+	}
+	return Swapped(sent, served) && Swapped(model, served)
+}
+
 // regionTail is a region a vendor's id names its deployment of a model
 // by: WorkBuddy AI lists DeepSeek V4.1 Flash as deepseek-v4.1-flash-sg,
 // its paid id for the Singapore deployment (the plugin's product config

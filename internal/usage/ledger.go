@@ -493,7 +493,7 @@ func ledgerMatched(since, until time.Time, f Filter, recs []Record, logs []sessi
 		if source == "" {
 			sent = provider.SentNameIn(wires, r.Provider, r.Model, r.Effort)
 		}
-		row := codexIdentityRow(Row{Record: r, Swapped: r.Served != "" && Swapped(sent, r.Served) && !ListedAs(r.Provider, r.Model, r.Served), Routed: GroupRouted(sent, r.Served), Source: source}, actor, codexIdentities)
+		row := codexIdentityRow(Row{Record: r, Swapped: SwappedOnWire(sent, r.Model, r.Served) && !ListedAs(r.Provider, r.Model, r.Served), Routed: GroupRouted(sent, r.Served), Source: source}, actor, codexIdentities)
 		if !f.keepsRow(&row) {
 			return
 		}
@@ -782,11 +782,11 @@ func basePriceIn(s settings.Settings, wires map[string]string, a priceAsk) (*cat
 // model under another id), and holds only when both read as another model,
 // so a row the ledger does not mark swapped is never priced as one.
 func servedInstead(wires map[string]string, providerID, model, effort, served string) bool {
-	if served == "" || !Swapped(model, served) || ListedAs(providerID, model, served) {
+	if served == "" || ListedAs(providerID, model, served) {
 		return false
 	}
 	sent := provider.SentNameIn(wires, providerID, model, effort)
-	return sent == model || Swapped(sent, served)
+	return SwappedOnWire(sent, model, served)
 }
 
 // atWindow prices one record: the base price at the rate of the window

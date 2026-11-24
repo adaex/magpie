@@ -3104,7 +3104,7 @@ func sessionRowPricer(cfg settings.Settings) func(Record, string) Row {
 			k := [4]string{r.priceID(), r.Model, sent, r.Served}
 			s, ok := swapped[k]
 			if !ok {
-				s = Swapped(sent, r.Served) && !ListedAs(r.priceID(), r.Model, r.Served)
+				s = SwappedOnWire(sent, r.Model, r.Served) && !ListedAs(r.priceID(), r.Model, r.Served)
 				swapped[k] = s
 			}
 			row.Swapped = s
